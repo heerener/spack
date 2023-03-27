@@ -101,6 +101,8 @@ class Libzmq(AutotoolsPackage):
 
         if "+libsodium" in self.spec:
             config_args.append("--with-libsodium=" + self.spec["libsodium"].prefix)
+        else:
+            config_args.append("--without-libsodium")
         if "~docs" in self.spec:
             config_args.append("--without-docs")
         if "clang" in self.compiler.cc:
