@@ -3,6 +3,8 @@
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
+import os
+
 from spack.package import *
 
 
@@ -36,6 +38,15 @@ class Ior(AutotoolsPackage):
     depends_on("hdf5+mpi", when="+hdf5")
     depends_on("parallel-netcdf", when="+ncmpi")
 
+    resource(
+        name="ime-native",
+        url="https://raw.githubusercontent.com/DDNStorage/ime_native/master/ime_native.h",
+        sha256="e6bf7ec70411e84091b0e505b63220d95f88dcc08847e9f74431669df49e6888",
+        when="+ime",
+        placement="ime-native",
+        destination="src",
+        expand=False)
+
     # The build for 3.2.0 fails if hdf5 is enabled
     # See https://github.com/hpc/ior/pull/124
     patch(
@@ -43,6 +54,14 @@ class Ior(AutotoolsPackage):
         sha256="ce7fa0eabf408f9b712c478a08aa62d68737d213901707ef8cbfc3aec02e2713",
         when="@3.2.0 +hdf5",
     )
+
+    def patch(self):
+        ime_src = "src/ime-native/ime_native.h"
+        ime_dst = "src/ime_native.h"
+        if os.path.exists(ime_src):
+            os.rename(ime_src, ime_dst)
+        else:
+            raise RuntimeError("ime_native.h not found")
 
     @run_before("autoreconf")
     def bootstrap(self):
